@@ -359,6 +359,15 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	VectorCopy (start, bolt->s.origin);
 	VectorCopy (start, bolt->s.old_origin);
 	vectoangles (dir, bolt->s.angles);
+
+	// Make the default blaster much more obvious
+	// Make the regular starting blaster fire REAL rockets
+	if (!hyper)
+	{
+		fire_rocket(self, start, dir, 120, 650, 120, 120);
+		return;
+	}
+
 	VectorScale (dir, speed, bolt->velocity);
 	bolt->movetype = MOVETYPE_FLYMISSILE;
 	bolt->clipmask = MASK_SHOT;
