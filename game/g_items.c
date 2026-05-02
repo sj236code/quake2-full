@@ -1367,7 +1367,7 @@ always owned, never in the world
 		"models/weapons/g_machn/tris.md2", EF_ROTATE,
 		"models/weapons/v_machn/tris.md2",
 /* icon */		"w_machinegun",
-/* pickup */	"Machinegun",
+/* pickup */	"MachineGun",
 		0,
 		1,
 		"Bullets",
@@ -1398,7 +1398,7 @@ always owned, never in the world
 		WEAP_CHAINGUN,
 		NULL,
 		0,
-/* precache */ "weapons/chngnu1a.wav weapons/chngnl1a.wav weapons/machgf3b.wav` weapons/chngnd1a.wav"
+/* precache */ "weapons/chngnu1a.wav weapons/chngnl1a.wav weapons/machgf3b.wav weapons/chngnd1a.wav"
 	},
 
 /*QUAKED ammo_grenades (.3 .3 1) (-16 -16 -16) (16 16 16)
@@ -2197,20 +2197,47 @@ SetItemNames
 Called by worldspawn
 ===============
 */
-void SetItemNames (void)
+void SetItemNames(void)
 {
 	int		i;
-	gitem_t	*it;
+	gitem_t* it;
+	char* display_name;
 
-	for (i=0 ; i<game.num_items ; i++)
+	for (i = 0; i < game.num_items; i++)
 	{
 		it = &itemlist[i];
-		gi.configstring (CS_ITEMS+i, it->pickup_name);
+		display_name = it->pickup_name;
+
+		if (it->classname)
+		{
+			if (!Q_stricmp(it->classname, "weapon_blaster"))
+				display_name = "Deku Slingshot";
+			else if (!Q_stricmp(it->classname, "weapon_shotgun"))
+				display_name = "Kokiri Sword";
+			else if (!Q_stricmp(it->classname, "weapon_supershotgun"))
+				display_name = "Master Sword";
+			else if (!Q_stricmp(it->classname, "weapon_machinegun"))
+				display_name = "Boomerang";
+			else if (!Q_stricmp(it->classname, "weapon_chaingun"))
+				display_name = "Hero's Bow";
+			else if (!Q_stricmp(it->classname, "weapon_grenadelauncher"))
+				display_name = "Bomb Bag";
+			else if (!Q_stricmp(it->classname, "weapon_rocketlauncher"))
+				display_name = "Fire Rod";
+			else if (!Q_stricmp(it->classname, "weapon_hyperblaster"))
+				display_name = "Magic Wand";
+			else if (!Q_stricmp(it->classname, "weapon_railgun"))
+				display_name = "Light Arrow";
+			else if (!Q_stricmp(it->classname, "weapon_bfg"))
+				display_name = "Triforce Blast";
+		}
+
+		gi.configstring(CS_ITEMS + i, display_name);
 	}
 
 	jacket_armor_index = ITEM_INDEX(FindItem("Jacket Armor"));
 	combat_armor_index = ITEM_INDEX(FindItem("Combat Armor"));
-	body_armor_index   = ITEM_INDEX(FindItem("Body Armor"));
+	body_armor_index = ITEM_INDEX(FindItem("Body Armor"));
 	power_screen_index = ITEM_INDEX(FindItem("Power Screen"));
 	power_shield_index = ITEM_INDEX(FindItem("Power Shield"));
 }
