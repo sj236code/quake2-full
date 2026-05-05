@@ -59,6 +59,7 @@ Bomb Bag launched a bomb!
 Fire Rod cast a fireball!
 Magic Wand released magic bolts!
 Light Arrow pierced the target!
+```
 
 ## Feature 2: Zelda Monster Retheme
 
