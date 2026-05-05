@@ -519,6 +519,10 @@ void G_SetStats (edict_t *ent)
 	else
 		ent->client->ps.stats[STAT_HELPICON] = 0;
 
+	// Zelda mod: always show rupees and speed on HUD
+	ent->client->ps.stats[STAT_RUPEES] = ent->client->pers.rupees;
+	ent->client->ps.stats[STAT_SPEED] = 100 + (15 * ent->client->pers.stamina_level);
+
 	ent->client->ps.stats[STAT_SPECTATOR] = 0;
 }
 
