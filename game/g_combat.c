@@ -391,11 +391,63 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	{
 		if (mod == MOD_SHOTGUN)
 		{
-			damage *= 3;
+			damage *= 5;
 
 			if (attacker && attacker->client)
 			{
 				gi.cprintf(attacker, PRINT_HIGH, "Kokiri Sword used, this is Bokoblin weakness! Oh no!\n");
+			}
+		}
+	}
+	// Zelda mod: Moblin weakness
+	if (targ->classname && !Q_stricmp(targ->classname, "monster_berserk"))
+	{
+		if (mod == MOD_GRENADE || mod == MOD_G_SPLASH)
+		{
+			damage *= 2;
+
+			if (attacker && attacker->client)
+			{
+				gi.cprintf(attacker, PRINT_HIGH, "Bomb Bag used, this is Moblin weakness! Oh no!\n");
+			}
+		}
+	}
+	// Zelda mod: Lizalfos weakness
+	if (targ->classname && !Q_stricmp(targ->classname, "monster_mutant"))
+	{
+		if (mod == MOD_MACHINEGUN)
+		{
+			damage *= 5;
+
+			if (attacker && attacker->client)
+			{
+				gi.cprintf(attacker, PRINT_HIGH, "Boomerang used, this is Lizalfos weakness! Oh no!\n");
+			}
+		}
+	}
+	// Zelda mod: Keese weakness
+	if (targ->classname && !Q_stricmp(targ->classname, "monster_flyer"))
+	{
+		if (mod == MOD_CHAINGUN)
+		{
+			damage *= 5;
+
+			if (attacker && attacker->client)
+			{
+				gi.cprintf(attacker, PRINT_HIGH, "Hero's Bow used, this is Keese weakness! Oh no!\n");
+			}
+		}
+	}
+	// Zelda mod: Lynel weakness
+	if (targ->classname && !Q_stricmp(targ->classname, "monster_tank"))
+	{
+		if (mod == MOD_RAILGUN)
+		{
+			damage *= 5;
+
+			if (attacker && attacker->client)
+			{
+				gi.cprintf(attacker, PRINT_HIGH, "Light Arrow used, this is Lynel weakness! Oh no!\n");
 			}
 		}
 	}
