@@ -362,11 +362,11 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 
 	// Make the default blaster much more obvious
 	// Make the regular starting blaster fire REAL rockets
-	if (!hyper)
-	{
-		fire_rocket(self, start, dir, 120, 650, 120, 120);
-		return;
-	}
+	//if (!hyper)
+	//{
+	//	fire_rocket(self, start, dir, 120, 650, 120, 120);
+	//	return;
+	//}
 
 	VectorScale (dir, speed, bolt->velocity);
 	bolt->movetype = MOVETYPE_FLYMISSILE;
@@ -673,7 +673,7 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	int			mask;
 	qboolean	water;
 
-	VectorMA (start, 8192, aimdir, end);
+	VectorMA (start, 1000, aimdir, end);
 	VectorCopy (start, from);
 	ignore = self;
 	water = false;

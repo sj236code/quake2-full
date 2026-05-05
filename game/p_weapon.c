@@ -279,13 +279,22 @@ Think_Weapon
 Called by ClientBeginServerFrame and ClientThink
 =================
 */
-void Think_Weapon (edict_t *ent)
+void Think_Weapon(edict_t* ent)
 {
 	// if just died, put the weapon away
 	if (ent->health < 1)
 	{
 		ent->client->newweapon = NULL;
-		ChangeWeapon (ent);
+		ChangeWeapon(ent);
+	}
+
+	// Zelda mod: print when Boomerang cooldown finishes
+	if (ent->client->boomerang_cooldown > 0 &&
+		level.time >= ent->client->boomerang_cooldown &&
+		ent->client->pers.weapon == FindItem("machinegun"))
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Boomerang returned!\n");
+		ent->client->boomerang_cooldown = 0;
 	}
 
 	// call active weapon think routine
@@ -296,7 +305,7 @@ void Think_Weapon (edict_t *ent)
 			is_silenced = MZ_SILENCED;
 		else
 			is_silenced = 0;
-		ent->client->pers.weapon->weaponthink (ent);
+		ent->client->pers.weapon->weaponthink(ent);
 	}
 }
 
@@ -711,7 +720,7 @@ void weapon_grenadelauncher_fire (edict_t *ent)
 	vec3_t	offset;
 	vec3_t	forward, right;
 	vec3_t	start;
-	int		damage = 120;
+	int		damage = 400;
 	float	radius;
 
 	radius = damage+40;
@@ -725,7 +734,9 @@ void weapon_grenadelauncher_fire (edict_t *ent)
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
+	gi.cprintf(ent, PRINT_HIGH, "Bomb Bag launched a bomb!\n");
+	// slower projectile, explodes sooner
+	fire_grenade(ent, start, forward, damage, 200, 0.5, radius);
 
 	gi.WriteByte (svc_muzzleflash);
 	gi.WriteShort (ent-g_edicts);
@@ -764,9 +775,9 @@ void Weapon_RocketLauncher_Fire (edict_t *ent)
 	float	damage_radius;
 	int		radius_damage;
 
-	damage = 100 + (int)(random() * 20.0);
-	radius_damage = 120;
-	damage_radius = 120;
+	damage = 90;
+	radius_damage = 90;
+	damage_radius = 170;
 	if (is_quad)
 	{
 		damage *= 4;
@@ -780,7 +791,8 @@ void Weapon_RocketLauncher_Fire (edict_t *ent)
 
 	VectorSet(offset, 8, 8, ent->viewheight-8);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
-	fire_rocket (ent, start, forward, damage, 650, damage_radius, radius_damage);
+	gi.cprintf(ent, PRINT_HIGH, "Fire Rod cast a fireball!\n");
+	fire_rocket(ent, start, forward, damage, 900, damage_radius, radius_damage);
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -829,7 +841,10 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
+	if (hyper)
+		fire_blaster(ent, start, forward, damage, 2000, effect, hyper);
+	else
+		fire_blaster(ent, start, forward, damage, 200, effect, hyper);
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -900,13 +915,11 @@ void Weapon_HyperBlaster_Fire (edict_t *ent)
 				effect = EF_HYPERBLASTER;
 			else
 				effect = 0;
-			if (deathmatch->value)
-				damage = 15;
-			else
-				damage = 20;
-			Blaster_Fire (ent, offset, damage, true, effect);
-			if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
-				ent->client->pers.inventory[ent->client->ammo_index]--;
+			damage = 22;
+			gi.cprintf(ent, PRINT_HIGH, "Magic Wand fired a magic bolt!\n");
+			Blaster_Fire(ent, offset, damage, true, effect);
+			//if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
+			//	ent->client->pers.inventory[ent->client->ammo_index]--;
 
 			ent->client->anim_priority = ANIM_ATTACK;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
@@ -923,7 +936,7 @@ void Weapon_HyperBlaster_Fire (edict_t *ent)
 
 		ent->client->ps.gunframe++;
 		if (ent->client->ps.gunframe == 12 && ent->client->pers.inventory[ent->client->ammo_index])
-			ent->client->ps.gunframe = 6;
+			ent->client->ps.gunframe = 20;
 	}
 
 	if (ent->client->ps.gunframe == 12)
@@ -956,7 +969,7 @@ void Machinegun_Fire (edict_t *ent)
 	vec3_t		start;
 	vec3_t		forward, right;
 	vec3_t		angles;
-	int			damage = 8;
+	int			damage = 3;
 	int			kick = 2;
 	vec3_t		offset;
 
@@ -967,10 +980,14 @@ void Machinegun_Fire (edict_t *ent)
 		return;
 	}
 
-	if (ent->client->ps.gunframe == 5)
-		ent->client->ps.gunframe = 4;
-	else
-		ent->client->ps.gunframe = 5;
+	if (level.time < ent->client->boomerang_cooldown)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Waiting for Boomerang to return!\n");
+		ent->client->ps.gunframe++;
+		return;
+	}
+
+	ent->client->ps.gunframe++;
 
 	if (ent->client->pers.inventory[ent->client->ammo_index] < 1)
 	{
@@ -1011,7 +1028,12 @@ void Machinegun_Fire (edict_t *ent)
 	AngleVectors (angles, forward, right, NULL);
 	VectorSet(offset, 0, 8, ent->viewheight-8);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
-	fire_bullet (ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_MACHINEGUN);
+
+	gi.cprintf(ent, PRINT_HIGH, "Boomerang thrown!\n");
+
+	fire_bullet(ent, start, forward, damage, kick, 100, 100, MOD_MACHINEGUN);
+
+	ent->client->boomerang_cooldown = level.time + 1.5;
 
 	gi.WriteByte (svc_muzzleflash);
 	gi.WriteShort (ent-g_edicts);
@@ -1020,8 +1042,8 @@ void Machinegun_Fire (edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
-		ent->client->pers.inventory[ent->client->ammo_index]--;
+	/*if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
+		ent->client->pers.inventory[ent->client->ammo_index]--;*/
 
 	ent->client->anim_priority = ANIM_ATTACK;
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
@@ -1053,31 +1075,14 @@ void Chaingun_Fire (edict_t *ent)
 	float		r, u;
 	vec3_t		offset;
 	int			damage;
-	int			kick = 2;
+	int			kick = 6;
 
-	if (deathmatch->value)
-		damage = 6;
-	else
-		damage = 8;
+	damage = 18;
 
 	if (ent->client->ps.gunframe == 5)
 		gi.sound(ent, CHAN_AUTO, gi.soundindex("weapons/chngnu1a.wav"), 1, ATTN_IDLE, 0);
 
-	if ((ent->client->ps.gunframe == 14) && !(ent->client->buttons & BUTTON_ATTACK))
-	{
-		ent->client->ps.gunframe = 32;
-		ent->client->weapon_sound = 0;
-		return;
-	}
-	else if ((ent->client->ps.gunframe == 21) && (ent->client->buttons & BUTTON_ATTACK)
-		&& ent->client->pers.inventory[ent->client->ammo_index])
-	{
-		ent->client->ps.gunframe = 15;
-	}
-	else
-	{
-		ent->client->ps.gunframe++;
-	}
+	ent->client->ps.gunframe++;
 
 	if (ent->client->ps.gunframe == 22)
 	{
@@ -1112,6 +1117,9 @@ void Chaingun_Fire (edict_t *ent)
 	}
 	else
 		shots = 3;
+
+	//Zelda mod
+	shots = 1;
 
 	if (ent->client->pers.inventory[ent->client->ammo_index] < shots)
 		shots = ent->client->pers.inventory[ent->client->ammo_index];
@@ -1148,7 +1156,8 @@ void Chaingun_Fire (edict_t *ent)
 		VectorSet(offset, 0, r, u + ent->viewheight-8);
 		P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
-		fire_bullet (ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_CHAINGUN);
+		gi.cprintf(ent, PRINT_HIGH, "Hero's Bow fired!\n");
+		fire_bullet(ent, start, forward, damage, kick, 25, 25, MOD_CHAINGUN);
 	}
 
 	// send muzzle flash
@@ -1167,7 +1176,7 @@ void Chaingun_Fire (edict_t *ent)
 void Weapon_Chaingun (edict_t *ent)
 {
 	static int	pause_frames[]	= {38, 43, 51, 61, 0};
-	static int	fire_frames[]	= {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 0};
+	static int	fire_frames[]	= {5, 0};
 
 	Weapon_Generic (ent, 4, 31, 61, 64, pause_frames, fire_frames, Chaingun_Fire);
 }
@@ -1183,11 +1192,13 @@ SHOTGUN / SUPERSHOTGUN
 
 void weapon_shotgun_fire (edict_t *ent)
 {
+	gi.cprintf(ent, PRINT_HIGH, "Kokiri Sword fired!\n");
+
 	vec3_t		start;
 	vec3_t		forward, right;
 	vec3_t		offset;
-	int			damage = 4;
-	int			kick = 8;
+	int			damage = 10;
+	int			kick = 12;
 
 	if (ent->client->ps.gunframe == 9)
 	{
@@ -1210,9 +1221,9 @@ void weapon_shotgun_fire (edict_t *ent)
 	}
 
 	if (deathmatch->value)
-		fire_shotgun (ent, start, forward, damage, kick, 500, 500, DEFAULT_DEATHMATCH_SHOTGUN_COUNT, MOD_SHOTGUN);
+		fire_shotgun (ent, start, forward, damage, kick, 100, 100, DEFAULT_DEATHMATCH_SHOTGUN_COUNT, MOD_SHOTGUN);
 	else
-		fire_shotgun (ent, start, forward, damage, kick, 500, 500, DEFAULT_SHOTGUN_COUNT, MOD_SHOTGUN);
+		fire_shotgun (ent, start, forward, damage, kick, 100, 100, DEFAULT_SHOTGUN_COUNT, MOD_SHOTGUN);
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -1222,9 +1233,6 @@ void weapon_shotgun_fire (edict_t *ent)
 
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
-
-	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
-		ent->client->pers.inventory[ent->client->ammo_index]--;
 }
 
 void Weapon_Shotgun (edict_t *ent)
@@ -1242,8 +1250,9 @@ void weapon_supershotgun_fire (edict_t *ent)
 	vec3_t		forward, right;
 	vec3_t		offset;
 	vec3_t		v;
-	int			damage = 6;
-	int			kick = 12;
+	int			damage = 12;
+	int			kick = 18;
+	gi.cprintf(ent, PRINT_HIGH, "Master Sword fired!\n");
 
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 
@@ -1260,13 +1269,13 @@ void weapon_supershotgun_fire (edict_t *ent)
 	}
 
 	v[PITCH] = ent->client->v_angle[PITCH];
-	v[YAW]   = ent->client->v_angle[YAW] - 5;
+	v[YAW]   = ent->client->v_angle[YAW] - 1;
 	v[ROLL]  = ent->client->v_angle[ROLL];
 	AngleVectors (v, forward, NULL, NULL);
-	fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT/2, MOD_SSHOTGUN);
-	v[YAW]   = ent->client->v_angle[YAW] + 5;
+	fire_shotgun(ent, start, forward, damage, kick, 75, 75, DEFAULT_SSHOTGUN_COUNT / 2, MOD_SSHOTGUN);
+	v[YAW]   = ent->client->v_angle[YAW] + 1;
 	AngleVectors (v, forward, NULL, NULL);
-	fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT/2, MOD_SSHOTGUN);
+	fire_shotgun(ent, start, forward, damage, kick, 75, 75, DEFAULT_SSHOTGUN_COUNT / 2, MOD_SSHOTGUN);
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -1277,8 +1286,6 @@ void weapon_supershotgun_fire (edict_t *ent)
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
-		ent->client->pers.inventory[ent->client->ammo_index] -= 2;
 }
 
 void Weapon_SuperShotgun (edict_t *ent)
@@ -1306,17 +1313,9 @@ void weapon_railgun_fire (edict_t *ent)
 	vec3_t		offset;
 	int			damage;
 	int			kick;
-
-	if (deathmatch->value)
-	{	// normal damage is too extreme in dm
-		damage = 100;
-		kick = 200;
-	}
-	else
-	{
-		damage = 150;
-		kick = 250;
-	}
+	
+	damage = 175;
+	kick = 250;
 
 	if (is_quad)
 	{
@@ -1331,7 +1330,9 @@ void weapon_railgun_fire (edict_t *ent)
 
 	VectorSet(offset, 0, 7,  ent->viewheight-8);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
-	fire_rail (ent, start, forward, damage, kick);
+
+	gi.cprintf(ent, PRINT_HIGH, "Light Arrow fired!\n");
+	fire_rail(ent, start, forward, damage, kick);
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);

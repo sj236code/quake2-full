@@ -931,6 +931,9 @@ struct gclient_s
 	int			breather_sound;
 
 	int			machinegun_shots;	// for weapon raising
+	
+	//Zelda Mod: boomerang cool down time
+	float		boomerang_cooldown;
 
 	// animation vars
 	int			anim_end;
