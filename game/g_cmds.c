@@ -19,6 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "g_local.h"
 #include "m_player.h"
+void SP_monster_soldier_light(edict_t* self);
+void SP_monster_berserk(edict_t* self);
+void SP_monster_mutant(edict_t* self);
+void SP_monster_flyer(edict_t* self);
+void SP_monster_tank(edict_t* self);
 
 
 char *ClientTeam (edict_t *ent)
@@ -899,6 +904,199 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+/*
+=================
+Cmd_SpawnBokoblin_f
+
+Spawns a Bokoblin test monster in front of the player.
+Uses monster_soldier_light as the base monster.
+=================
+*/
+void Cmd_SpawnBokoblin_f(edict_t* ent)
+{
+	edict_t* monster;
+	vec3_t forward, right, start, offset;
+
+	if (!ent || !ent->client)
+		return;
+
+	if (deathmatch->value && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		return;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	// Spawn monster 100 units in front of player
+	VectorSet(offset, 100, 0, 0);
+	G_ProjectSource(ent->s.origin, offset, forward, right, start);
+
+	monster = G_Spawn();
+	VectorCopy(start, monster->s.origin);
+	VectorCopy(ent->s.angles, monster->s.angles);
+
+	monster->classname = "monster_soldier_light";
+
+	SP_monster_soldier_light(monster);
+
+	gi.cprintf(ent, PRINT_HIGH, "Spawned Bokoblin!\n");
+}
+
+/*
+=================
+Cmd_SpawnMoblin_f
+
+Spawns a Moblin test monster.
+Uses monster_berserk as the base monster.
+=================
+*/
+void Cmd_SpawnMoblin_f(edict_t* ent)
+{
+	edict_t* monster;
+	vec3_t forward, right, start, offset;
+
+	if (!ent || !ent->client)
+		return;
+
+	if (deathmatch->value && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		return;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorSet(offset, 120, 0, 0);
+	G_ProjectSource(ent->s.origin, offset, forward, right, start);
+
+	monster = G_Spawn();
+	VectorCopy(start, monster->s.origin);
+	VectorCopy(ent->s.angles, monster->s.angles);
+
+	monster->classname = "monster_berserk";
+
+	SP_monster_berserk(monster);
+
+	gi.cprintf(ent, PRINT_HIGH, "Spawned Moblin!\n");
+}
+
+/*
+=================
+Cmd_SpawnLizalfos_f
+
+Spawns a Lizalfos test monster.
+Uses monster_mutant as the base monster.
+=================
+*/
+void Cmd_SpawnLizalfos_f(edict_t* ent)
+{
+	edict_t* monster;
+	vec3_t forward, right, start, offset;
+
+	if (!ent || !ent->client)
+		return;
+
+	if (deathmatch->value && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		return;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorSet(offset, 120, 0, 0);
+	G_ProjectSource(ent->s.origin, offset, forward, right, start);
+
+	monster = G_Spawn();
+	VectorCopy(start, monster->s.origin);
+	VectorCopy(ent->s.angles, monster->s.angles);
+
+	monster->classname = "monster_mutant";
+
+	SP_monster_mutant(monster);
+
+	gi.cprintf(ent, PRINT_HIGH, "Spawned Lizalfos!\n");
+}
+
+/*
+=================
+Cmd_SpawnKeese_f
+
+Spawns a Keese test monster.
+Uses monster_flyer as the base monster.
+=================
+*/
+void Cmd_SpawnKeese_f(edict_t* ent)
+{
+	edict_t* monster;
+	vec3_t forward, right, start, offset;
+
+	if (!ent || !ent->client)
+		return;
+
+	if (deathmatch->value && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		return;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorSet(offset, 120, 0, 32); // slightly higher because Keese flies
+	G_ProjectSource(ent->s.origin, offset, forward, right, start);
+
+	monster = G_Spawn();
+	VectorCopy(start, monster->s.origin);
+	VectorCopy(ent->s.angles, monster->s.angles);
+
+	monster->classname = "monster_flyer";
+
+	SP_monster_flyer(monster);
+
+	gi.cprintf(ent, PRINT_HIGH, "Spawned Keese!\n");
+}
+
+/*
+=================
+Cmd_SpawnLynel_f
+
+Spawns a Lynel test monster.
+Uses monster_tank as the base monster.
+=================
+*/
+void Cmd_SpawnLynel_f(edict_t* ent)
+{
+	edict_t* monster;
+	vec3_t forward, right, start, offset;
+
+	if (!ent || !ent->client)
+		return;
+
+	if (deathmatch->value && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		return;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorSet(offset, 180, 0, 0); // tank is large, spawn farther away
+	G_ProjectSource(ent->s.origin, offset, forward, right, start);
+
+	monster = G_Spawn();
+	VectorCopy(start, monster->s.origin);
+	VectorCopy(ent->s.angles, monster->s.angles);
+
+	monster->classname = "monster_tank";
+
+	SP_monster_tank(monster);
+
+	gi.cprintf(ent, PRINT_HIGH, "Spawned Lynel!\n");
+}
+
+
+
 
 /*
 =================
@@ -987,6 +1185,16 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
+	else if (Q_stricmp(cmd, "spawn_bokoblin") == 0)
+		Cmd_SpawnBokoblin_f(ent);
+	else if (Q_stricmp(cmd, "spawn_moblin") == 0)
+		Cmd_SpawnMoblin_f(ent);
+	else if (Q_stricmp(cmd, "spawn_lizalfos") == 0)
+		Cmd_SpawnLizalfos_f(ent);
+	else if (Q_stricmp(cmd, "spawn_keese") == 0)
+		Cmd_SpawnKeese_f(ent);
+	else if (Q_stricmp(cmd, "spawn_lynel") == 0)
+		Cmd_SpawnLynel_f(ent);
 	else	// anything that doesn't match a command will be a chat
-		Cmd_Say_f (ent, false, true);
+		Cmd_Say_f(ent, false, true);
 }

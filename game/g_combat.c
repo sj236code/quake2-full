@@ -386,6 +386,20 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	if (!targ->takedamage)
 		return;
 
+	// Zelda mod: Bokoblin weakness
+	if (targ->classname && !Q_stricmp(targ->classname, "monster_soldier_light"))
+	{
+		if (mod == MOD_SHOTGUN)
+		{
+			damage *= 3;
+
+			if (attacker && attacker->client)
+			{
+				gi.cprintf(attacker, PRINT_HIGH, "Kokiri Sword used, this is Bokoblin weakness! Oh no!\n");
+			}
+		}
+	}
+
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)
 	// knockback still occurs
