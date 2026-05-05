@@ -1,29 +1,74 @@
+# Quake II Zelda Mod
 
-This is the complete source code for Quake 2, version 3.19, buildable with
-visual C++ 6.0.  The linux version should be buildable, but we haven't
-tested it for the release.
+## Overview
 
-The code is all licensed under the terms of the GPL (gnu public license).  
-You should read the entire license, but the gist of it is that you can do 
-anything you want with the code, including sell your new version.  The catch 
-is that if you distribute new binary versions, you are required to make the 
-entire source code available for free to everyone.
+This project modifies Quake II into a Zelda-inspired gameplay mod. The implementation keeps the original Quake II code structure and reuses existing weapon and monster systems to keep the mod simple and stable.
 
-The primary intent of this release is for entertainment and educational 
-purposes, but the GPL does allow commercial exploitation if you obey the 
-full license.  If you want to do something commercial and you just can't bear 
-to have your source changes released, we could still negotiate a separate 
-license agreement (for $$$), but I would encourage you to just live with the 
-GPL.
+So far, two major features have been implemented:
 
-All of the Q2 data files remain copyrighted and licensed under the 
-original terms, so you cannot redistribute data from the original game, but if 
-you do a true total conversion, you can create a standalone game based on 
-this code.
+1. Replace Quake II weapons with Zelda-themed weapons
+2. Retheme five Quake II monsters as Zelda beasts with weapon-specific weaknesses
 
-Thanks to Robert Duffy for doing the grunt work of building this release.
+---
 
-John Carmack
-Id Software
+## Feature 1: Zelda Weapon Replacement
 
+The original Quake II weapons were renamed and modified to behave like Zelda-style weapons. The display names were changed while keeping the original internal Quake II weapon names so existing maps, pickups, and console commands still work.
 
+### Weapon Mapping
+
+| Original Quake II Weapon | Zelda Weapon | Internal Command |
+|---|---|---|
+| Blaster | Deku Slingshot | `use blaster` |
+| Shotgun | Kokiri Sword | `use shotgun` |
+| Super Shotgun | Master Sword | `use super shotgun` |
+| Machinegun | Boomerang | `use machinegun` |
+| Chaingun | Hero's Bow | `use chaingun` |
+| Grenade Launcher | Bomb Bag | `use grenade launcher` |
+| Rocket Launcher | Fire Rod | `use rocket launcher` |
+| HyperBlaster | Magic Wand | `use hyperblaster` |
+| Railgun | Light Arrow | `use railgun` |
+
+### Weapon Behavior Changes
+
+| Zelda Weapon | Base Weapon | Behavior Change |
+|---|---|---|
+| Deku Slingshot | Blaster | Fires a slower reusable projectile |
+| Kokiri Sword | Shotgun | Stronger, tighter close-range slash-style attack |
+| Master Sword | Super Shotgun | Stronger version of the Kokiri Sword with tighter spread |
+| Boomerang | Machinegun | Single reusable shot with cooldown and return message |
+| Hero's Bow | Chaingun | Single accurate arrow shot instead of rapid spray |
+| Bomb Bag | Grenade Launcher | Launches slower, heavier bombs |
+| Fire Rod | Rocket Launcher | Fires slower fireballs with wider splash radius |
+| Magic Wand | HyperBlaster | Fires visible magic bolts |
+| Light Arrow | Railgun | Stronger limited-range piercing shot |
+
+### Weapon Feedback Messages
+
+To make testing clearer, feedback messages were added when weapons are used.
+
+Examples:
+
+```text
+Kokiri Sword fired!
+Master Sword fired!
+Boomerang thrown!
+Boomerang returned!
+Hero's Bow fired!
+Bomb Bag launched a bomb!
+Fire Rod cast a fireball!
+Magic Wand released magic bolts!
+Light Arrow pierced the target!
+
+## Feature 2: Zelda Monster Retheme
+
+Five Quake II monsters were rethemed as Zelda-style beasts. The original Quake II monster models are reused, but each monster now has a Zelda name and specific weapon weakness. 
+
+### Monster Mapping
+| Original Quake II Monster | Zelda Beast | Internal Command | Weakness Weapon | Weapon Hotkey |
+|---|---|---|---|---|
+| monster_soldier_light | Bokoblin | spawn_bokoblin | Kokiri Sword | 2 |
+| monster_berserk | Moblin | spawn_moblin | Bomb Bag | 6 |
+| monster_mutant | Lizalfos | spawn_lizalfos | Boomerang | 4 |
+| monster_flyer | Keese | spawn_keese | Hero's Bow | 5 |
+| monster_tank | Lynel | spawn_lynel | Light Arrow | 9 |
