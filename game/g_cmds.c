@@ -1095,7 +1095,82 @@ void Cmd_SpawnLynel_f(edict_t* ent)
 	gi.cprintf(ent, PRINT_HIGH, "Spawned Lynel!\n");
 }
 
+void SpawnZeldaItemInFront(edict_t* ent, char* classname)
+{
+	edict_t* item;
+	vec3_t forward, right, start, offset;
+	gitem_t* gitem;
+	trace_t tr;
+	vec3_t mins, maxs;
 
+	if (!ent || !ent->client)
+		return;
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	// Spawn farther in front and above the floor
+	VectorSet(offset, 160, 0, 48);
+	G_ProjectSource(ent->s.origin, offset, forward, right, start);
+
+	gitem = FindItemByClassname(classname);
+
+	if (!gitem)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Could not find item classname: %s\n", classname);
+		return;
+	}
+
+	// Make sure the spawn point is not inside a wall
+	VectorSet(mins, -15, -15, -15);
+	VectorSet(maxs, 15, 15, 15);
+
+	tr = gi.trace(ent->s.origin, mins, maxs, start, ent, MASK_SOLID);
+
+	if (tr.startsolid || tr.allsolid)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Could not spawn item: start point is solid.\n");
+		return;
+	}
+
+	if (tr.fraction < 1.0)
+	{
+		VectorCopy(tr.endpos, start);
+		start[2] += 32;
+	}
+
+	item = G_Spawn();
+	VectorCopy(start, item->s.origin);
+	item->classname = classname;
+
+	SpawnItem(item, gitem);
+
+	gi.cprintf(ent, PRINT_HIGH, "Spawned %s\n", gitem->pickup_name);
+}
+
+void Cmd_SpawnGreenRupee_f(edict_t* ent)
+{
+	SpawnZeldaItemInFront(ent, "item_green_rupee");
+}
+
+void Cmd_SpawnBlueRupee_f(edict_t* ent)
+{
+	SpawnZeldaItemInFront(ent, "item_blue_rupee");
+}
+
+void Cmd_SpawnRedRupee_f(edict_t* ent)
+{
+	SpawnZeldaItemInFront(ent, "item_red_rupee");
+}
+
+void Cmd_SpawnHeartContainer_f(edict_t* ent)
+{
+	SpawnZeldaItemInFront(ent, "item_heart_container");
+}
+
+void Cmd_SpawnStaminaVessel_f(edict_t* ent)
+{
+	SpawnZeldaItemInFront(ent, "item_stamina_vessel");
+}
 
 
 /*
@@ -1195,6 +1270,16 @@ void ClientCommand (edict_t *ent)
 		Cmd_SpawnKeese_f(ent);
 	else if (Q_stricmp(cmd, "spawn_lynel") == 0)
 		Cmd_SpawnLynel_f(ent);
+	else if (Q_stricmp(cmd, "spawn_green_rupee") == 0)
+		Cmd_SpawnGreenRupee_f(ent);
+	else if (Q_stricmp(cmd, "spawn_blue_rupee") == 0)
+		Cmd_SpawnBlueRupee_f(ent);
+	else if (Q_stricmp(cmd, "spawn_red_rupee") == 0)
+		Cmd_SpawnRedRupee_f(ent);
+	else if (Q_stricmp(cmd, "spawn_heart_container") == 0)
+		Cmd_SpawnHeartContainer_f(ent);
+	else if (Q_stricmp(cmd, "spawn_stamina_vessel") == 0)
+		Cmd_SpawnStaminaVessel_f(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f(ent, false, true);
 }

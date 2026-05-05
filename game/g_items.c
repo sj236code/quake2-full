@@ -218,6 +218,65 @@ qboolean Pickup_AncientHead (edict_t *ent, edict_t *other)
 	return true;
 }
 
+// ======================================================
+// Zelda Mod: Findable Zelda-style items
+// ======================================================
+
+qboolean Pickup_GreenRupee(edict_t* ent, edict_t* other)
+{
+	other->client->pers.rupees += 5;
+
+	gi.cprintf(other, PRINT_HIGH, "Picked up a Green Rupee! +5 Rupees. Total: %d\n",
+		other->client->pers.rupees);
+
+	return true;
+}
+
+qboolean Pickup_BlueRupee(edict_t* ent, edict_t* other)
+{
+	other->client->pers.rupees += 10;
+
+	gi.cprintf(other, PRINT_HIGH, "Picked up a Blue Rupee! +10 Rupees. Total: %d\n",
+		other->client->pers.rupees);
+
+	return true;
+}
+
+qboolean Pickup_RedRupee(edict_t* ent, edict_t* other)
+{
+	other->client->pers.rupees += 25;
+
+	gi.cprintf(other, PRINT_HIGH, "Picked up a Red Rupee! +25 Rupees. Total: %d\n",
+		other->client->pers.rupees);
+
+	return true;
+}
+
+qboolean Pickup_HeartContainer(edict_t* ent, edict_t* other)
+{
+	other->client->pers.heart_containers += 1;
+
+	other->max_health += 25;
+	other->client->pers.max_health = other->max_health;
+	other->health = other->max_health;
+
+	gi.cprintf(other, PRINT_HIGH, "Picked up a Heart Container! Max health increased to %d.\n",
+		other->max_health);
+
+	return true;
+}
+
+qboolean Pickup_StaminaVessel(edict_t* ent, edict_t* other)
+{
+	other->client->pers.stamina_level += 1;
+
+	gi.cprintf(other, PRINT_HIGH,
+		"Picked up a Stamina Vessel! Speed increased. Stamina level is now %d.\n",
+		other->client->pers.stamina_level);
+
+	return true;
+}
+
 qboolean Pickup_Bandolier (edict_t *ent, edict_t *other)
 {
 	gitem_t	*item;
@@ -1140,6 +1199,124 @@ gitem_t	itemlist[] =
 	//
 	// ARMOR
 	//
+	// ======================================================
+	// Zelda Mod: Findable Zelda-style items
+	// ======================================================
+
+	/*QUAKED item_green_rupee (.3 1 .3) (-16 -16 -16) (16 16 16)
+	*/
+	{
+		"item_green_rupee",
+		Pickup_GreenRupee,
+		NULL,
+		NULL,
+		NULL,
+		"misc/ar2_pkup.wav",
+		"models/items/armor/shard/tris.md2", EF_ROTATE,
+		NULL,
+		/* icon */		"i_jacketarmor",
+		/* pickup */	"Green Rupee",
+		/* width */		3,
+			0,
+			NULL,
+			IT_POWERUP,
+			0,
+			NULL,
+			0,
+			/* precache */ ""
+			},
+
+	/*QUAKED item_blue_rupee (.3 .3 1) (-16 -16 -16) (16 16 16)
+	*/
+	{
+		"item_blue_rupee",
+		Pickup_BlueRupee,
+		NULL,
+		NULL,
+		NULL,
+		"misc/am_pkup.wav",
+		"models/items/ammo/cells/medium/tris.md2", EF_ROTATE,
+		NULL,
+		/* icon */		"a_cells",
+		/* pickup */	"Blue Rupee",
+		/* width */		3,
+			0,
+			NULL,
+			IT_POWERUP,
+			0,
+			NULL,
+			0,
+			/* precache */ ""
+			},
+
+	/*QUAKED item_red_rupee (1 .1 .1) (-16 -16 -16) (16 16 16)
+	*/
+	{
+		"item_red_rupee",
+		Pickup_RedRupee,
+		NULL,
+		NULL,
+		NULL,
+		"misc/am_pkup.wav",
+		"models/items/ammo/rockets/medium/tris.md2", EF_ROTATE,
+		NULL,
+		/* icon */		"a_rockets",
+		/* pickup */	"Red Rupee",
+		/* width */		3,
+			0,
+			NULL,
+			IT_POWERUP,
+			0,
+			NULL,
+			0,
+			/* precache */ ""
+			},
+
+	/*QUAKED item_heart_container (1 .1 .1) (-16 -16 -16) (16 16 16)
+	*/
+	{
+		"item_heart_container",
+		Pickup_HeartContainer,
+		NULL,
+		NULL,
+		NULL,
+		"items/m_health.wav",
+		"models/items/healing/large/tris.md2", EF_ROTATE,
+		NULL,
+		/* icon */		"i_health",
+		/* pickup */	"Heart Container",
+		/* width */		3,
+			0,
+			NULL,
+			IT_POWERUP,
+			0,
+			NULL,
+			0,
+			/* precache */ ""
+			},
+
+	/*QUAKED item_stamina_vessel (.1 1 .1) (-16 -16 -16) (16 16 16)
+	*/
+	{
+		"item_stamina_vessel",
+		Pickup_StaminaVessel,
+		NULL,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/items/adrenal/tris.md2", EF_ROTATE,
+		NULL,
+		/* icon */		"p_adrenaline",
+		/* pickup */	"Stamina Vessel",
+		/* width */		3,
+			0,
+			NULL,
+			IT_POWERUP,
+			0,
+			NULL,
+			0,
+			/* precache */ ""
+			},
 
 /*QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16)
 */

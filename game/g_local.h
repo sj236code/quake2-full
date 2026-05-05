@@ -858,6 +858,11 @@ typedef struct
 	int			power_cubes;	// used for tracking the cubes in coop games
 	int			score;			// for calculating total unit score in coop games
 
+	// Zelda mod: persistent player upgrade/currency values
+	int			rupees;
+	int			heart_containers;
+	int			stamina_level;
+
 	int			game_helpchanged;
 	int			helpchanged;
 

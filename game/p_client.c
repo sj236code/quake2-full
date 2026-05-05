@@ -619,6 +619,11 @@ void InitClientPersistant (gclient_t *client)
 	client->pers.health			= 100;
 	client->pers.max_health		= 100;
 
+	// Zelda mod: initialize player currency/upgrades
+	client->pers.rupees = 0;
+	client->pers.heart_containers = 0;
+	client->pers.stamina_level = 0;
+
 	client->pers.max_bullets	= 200;
 	client->pers.max_shells		= 100;
 	client->pers.max_rockets	= 50;
@@ -1622,6 +1627,15 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		{
 			pm.snapinitial = true;
 	//		gi.dprintf ("pmove changed!\n");
+		}
+
+		// Zelda mod: Stamina Vessel increases player movement speed
+		if (ent->client->pers.stamina_level > 0)
+		{
+			float speed_multiplier = 1.0 + (0.15 * ent->client->pers.stamina_level);
+
+			ucmd->forwardmove *= speed_multiplier;
+			ucmd->sidemove *= speed_multiplier;
 		}
 
 		pm.cmd = *ucmd;

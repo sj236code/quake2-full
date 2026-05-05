@@ -1252,8 +1252,10 @@ void SP_monster_soldier_light (edict_t *self)
 	gi.soundindex ("soldier/solatck2.wav");
 
 	self->s.skinnum = 0;
-	self->health = 20;
+	self->health = 45;
 	self->gib_health = -30;
+
+	gi.dprintf("Bokoblin spawned!\n");
 }
 
 /*QUAKED monster_soldier (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
